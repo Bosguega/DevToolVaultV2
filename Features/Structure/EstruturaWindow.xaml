@@ -4,77 +4,129 @@
         xmlns:local="clr-namespace:DevToolVaultV2.Features.Structure"
         xmlns:converters="clr-namespace:DevToolVaultV2.Converters"
         Title="Estrutura de Pastas" Height="600" Width="900"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Background="#F0F0F0">
 
     <Window.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+
+        <!-- Estilo moderno para botões -->
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#4CAF50"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="5"
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#45A049"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#3E8E41"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Estilo para RadioButtons como Toggle -->
+        <Style TargetType="RadioButton">
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Border" 
+                        CornerRadius="5" 
+                        Padding="8,4" 
+                        Background="#DDD">
+                            <!-- Envolvendo o conteúdo em TextBlock -->
+                            <TextBlock x:Name="ContentText" Text="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#4CAF50"/>
+                                <Setter TargetName="ContentText" Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#BFBFBF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
-    <Grid Margin="10">
+    <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Parte superior: seleção de pasta + filtro -->
-        <Grid Grid.Row="0" Margin="0,0,0,10">
+        <!-- Top area: pasta + filtro -->
+        <Grid Grid.Row="0" Margin="0,0,0,15">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="140"/>
-                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Caminho da pasta -->
-            <TextBox Grid.Column="0"
-                     Text="{Binding SelectedPath, UpdateSourceTrigger=PropertyChanged}" 
-                     Margin="0,0,5,0"
-                     VerticalAlignment="Center"/>
+            <!-- TextBox do caminho dentro de Border arredondado -->
+            <Border Grid.Column="0" Background="White" BorderBrush="#CCC" BorderThickness="1" CornerRadius="5" Padding="2" Margin="0,0,5,0">
+                <TextBox Text="{Binding SelectedPath, UpdateSourceTrigger=PropertyChanged}" 
+                         VerticalAlignment="Center"
+                         BorderThickness="0"
+                         Background="Transparent"/>
+            </Border>
 
-            <!-- Botão Procurar Pasta -->
-            <Button Grid.Column="1" Content="Procurar Pasta" 
-                    Command="{Binding BrowseFolderCommand}" Margin="5,0"/>
-
-            <!-- Botão Selecionar Filtro -->
-            <Button Grid.Column="2" Content="Selecionar Filtro" 
-                    Command="{Binding SelectFilterCommand}" Margin="5,0"/>
-
-            <!-- Perfil ativo -->
-            <TextBlock Grid.Column="3" 
-                       Text="{Binding CurrentProfileName, StringFormat='Perfil Atual: {0}'}" 
-                       VerticalAlignment="Center" Margin="10,0,0,0" FontWeight="Bold"/>
+            <Button Grid.Column="1" Content="📁 Procurar Pasta" Command="{Binding BrowseFolderCommand}"/>
+            <Button Grid.Column="2" Content="🔍 Selecionar Filtro" Command="{Binding SelectFilterCommand}"/>
+            <TextBlock Grid.Column="3" Text="{Binding CurrentProfileName, StringFormat='Perfil Atual: {0}'}" 
+                       VerticalAlignment="Center" Margin="15,0,0,0" FontWeight="Bold" Foreground="#333"/>
         </Grid>
 
-        <!-- Tree display area -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <TextBox Text="{Binding TreeText, Mode=OneWay}" 
-                     IsReadOnly="True" 
-                     Background="White"
-                     FontFamily="Consolas, Courier New, Monospace"
-                     FontSize="12"
-                     TextWrapping="NoWrap"
-                     AcceptsReturn="True"
-                     VerticalScrollBarVisibility="Auto"
-                     HorizontalScrollBarVisibility="Auto"
-                     BorderBrush="#CCCCCC"
-                     BorderThickness="1"
-                     Padding="10"/>
-        </ScrollViewer>
+        <!-- Tree display -->
+        <Border Grid.Row="1" Background="White" BorderBrush="#CCC" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,0,0,15">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                <TextBox Text="{Binding TreeText, Mode=OneWay}" 
+                         IsReadOnly="True"
+                         FontFamily="Consolas, Courier New, Monospace"
+                         FontSize="12"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         TextWrapping="NoWrap"
+                         AcceptsReturn="True"/>
+            </ScrollViewer>
+        </Border>
 
-        <!-- Buttons area -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-            <!-- Tree display toggle -->
+        <!-- Bottom buttons -->
+        <DockPanel Grid.Row="2" LastChildFill="False" HorizontalAlignment="Right">
+            <!-- Formato -->
             <StackPanel Orientation="Horizontal" Margin="0,0,20,0" VerticalAlignment="Center">
                 <TextBlock Text="Formato:" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold"/>
-                <RadioButton Content="ASCII" IsChecked="{Binding UseAsciiTree}" GroupName="TreeFormat" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                <RadioButton Content="Gráfico" IsChecked="{Binding UseAsciiTree, Converter={StaticResource InverseBooleanConverter}}" GroupName="TreeFormat" VerticalAlignment="Center"/>
+                <RadioButton Content="ASCII" IsChecked="{Binding UseAsciiTree}" GroupName="TreeFormat"/>
+                <RadioButton Content="Gráfico" IsChecked="{Binding UseAsciiTree, Converter={StaticResource InverseBooleanConverter}}" GroupName="TreeFormat"/>
             </StackPanel>
-            
-            <!-- Action buttons -->
-            <Button Content="Copiar Estrutura" Width="120" Margin="5,0" Command="{Binding CopyStructureCommand}"/>
-            <Button Content="Salvar Estrutura" Width="120" Margin="5,0" Command="{Binding SaveStructureCommand}"/>
-            <Button Content="Fechar" Width="100" Margin="5,0" Command="{Binding CloseCommand}"/>
-        </StackPanel>
+
+            <!-- Ações -->
+            <Button Content="📋 Copiar Estrutura" Width="140" Command="{Binding CopyStructureCommand}"/>
+            <Button Content="💾 Salvar Estrutura" Width="140" Command="{Binding SaveStructureCommand}"/>
+            <Button Content="❌ Fechar" Width="100" Command="{Binding CloseCommand}"/>
+        </DockPanel>
     </Grid>
 </Window>

@@ -6,13 +6,77 @@
         xmlns:local="clr-namespace:DevToolVaultV2.Features.Export"
         xmlns:controls="clr-namespace:DevToolVaultV2.Controls"
         mc:Ignorable="d"
-        Title="Exportar Código" Height="600" Width="900">
+        Title="Exportar Código" Height="600" Width="900"
+        WindowStartupLocation="CenterScreen"
+        Background="#F0F0F0">
 
     <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <!-- Estilo moderno para botões -->
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#4CAF50"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="5"
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#45A049"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#3E8E41"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Estilo para CheckBox tri-state moderno -->
+        <Style TargetType="CheckBox">
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal">
+                            <Border x:Name="Border" Width="18" Height="18" CornerRadius="3" BorderBrush="#999" BorderThickness="1" Background="White" VerticalAlignment="Center">
+                                <Path x:Name="CheckMark" Data="M0,5 L2,7 L7,0" Stroke="#4CAF50" StrokeThickness="2" Visibility="Collapsed" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ContentPresenter Content="{TemplateBinding Content}" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="{x:Null}">
+                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="CheckMark" Property="Stroke" Value="Gray"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#EEE"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
-    <Grid Margin="10">
+    <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -20,41 +84,38 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Caminhos e filtros -->
-        <Grid Grid.Row="0" Margin="0,0,0,5">
+        <!-- Top: Caminhos e filtros -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="120"/>
-                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            
-            <!-- Caminho da pasta -->
-            <TextBox Grid.Column="0" Text="{Binding CurrentPath}" IsReadOnly="True" Margin="0,0,5,0" VerticalAlignment="Center"/>
-            
-            <!-- Botão Selecionar Pasta -->
-            <Button Grid.Column="1" Content="Selecionar Pasta" Command="{Binding SelectFolderCommand}" Margin="5,0"/>
-            
-            <!-- Botão Selecionar Filtro -->
-            <Button Grid.Column="2" Content="Selecionar Filtro" Command="{Binding SelectFilterCommand}" Margin="5,0"/>
-            
-            <!-- Filtro atual -->
+
+            <!-- TextBox do caminho em Border arredondado -->
+            <Border Grid.Column="0" Background="White" BorderBrush="#CCC" BorderThickness="1" CornerRadius="5" Padding="2" Margin="0,0,5,0">
+                <TextBox Text="{Binding CurrentPath}" IsReadOnly="True" Background="Transparent" BorderThickness="0"/>
+            </Border>
+
+            <Button Grid.Column="1" Content="📁 Selecionar Pasta" Command="{Binding SelectFolderCommand}"/>
+            <Button Grid.Column="2" Content="🔍 Selecionar Filtro" Command="{Binding SelectFilterCommand}"/>
             <TextBlock Grid.Column="3" Text="{Binding CurrentFilterName, StringFormat='Filtro: {0}'}" 
-                       VerticalAlignment="Center" Margin="10,0,0,0" FontWeight="Bold"/>
+                       VerticalAlignment="Center" Margin="10,0,0,0" FontWeight="Bold" Foreground="#333"/>
         </Grid>
 
-        <!-- Árvore de arquivos -->
-        <GroupBox Grid.Row="1" Header="Estrutura de Arquivos">
+        <!-- Tree de arquivos -->
+        <GroupBox Grid.Row="1" Header="Estrutura de Arquivos" FontWeight="Bold" Foreground="#444" Padding="10">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
-                    <Button Content="Expandir Todos" Command="{Binding ExpandAllCommand}" Margin="0,0,5,0"/>
-                    <Button Content="Recolher Todos" Command="{Binding CollapseAllCommand}" Margin="0,0,5,0"/>
-                    <CheckBox Content="Selecionar Todos" IsChecked="{Binding SelectAll, Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                    <Button Content="Expandir Todos" Command="{Binding ExpandAllCommand}"/>
+                    <Button Content="Recolher Todos" Command="{Binding CollapseAllCommand}"/>
+                    <CheckBox Content="Selecionar Todos" IsChecked="{Binding SelectAll, Mode=TwoWay}" Margin="10,0,0,0"/>
                 </StackPanel>
 
                 <controls:FileSystemTreeView x:Name="fileTreeView" Grid.Row="1" Items="{Binding FileSystemItems}" />
@@ -62,45 +123,40 @@
         </GroupBox>
 
         <!-- Botões de ação -->
-        <GroupBox Grid.Row="2" Header="Ações" Margin="0,5,0,0">
+        <GroupBox Grid.Row="2" Header="Ações" FontWeight="Bold" Foreground="#444" Padding="10" Margin="0,10,0,0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                
-                <!-- Status de seleção -->
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15" HorizontalAlignment="Center">
+
+                <!-- Status seleção -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
                     <TextBlock Text="📄 Arquivos selecionados: " FontWeight="Bold" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding SelectedItemsCount}" 
-                               Foreground="Blue" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding SelectedItemsCount}" Foreground="Blue" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
                     <TextBlock Text=" arquivos" VerticalAlignment="Center" Margin="5,0,0,0"/>
                 </StackPanel>
-                
+
                 <!-- Botões principais -->
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    
+
                     <Button Grid.Column="0" Content="👁️ Visualizar Selecionados" 
                             Command="{Binding PreviewSelectedCommand}" 
-                            Margin="0,0,10,0" Padding="15,10"
-                            ToolTip="Visualizar lista dos arquivos selecionados (apenas arquivos)"/>
-                            
+                            Padding="15,10" ToolTip="Visualizar lista dos arquivos selecionados"/>
                     <Button Grid.Column="1" Content="📦 Exportar Arquivos" 
                             Command="{Binding ExportSelectedCommand}" 
-                            Margin="10,0,0,0" Padding="15,10"
-                            ToolTip="Exportar arquivos selecionados (apenas arquivos, não pastas)"/>
+                            Padding="15,10" ToolTip="Exportar arquivos selecionados"/>
                 </Grid>
             </Grid>
         </GroupBox>
 
-        <!-- Barra de progresso e status -->
-        <StackPanel Grid.Row="3" Margin="0,5,0,0">
-            <ProgressBar Height="20" 
-                         IsIndeterminate="True"
+        <!-- Barra de progresso -->
+        <StackPanel Grid.Row="3" Margin="0,10,0,0">
+            <ProgressBar Height="20" IsIndeterminate="True"
                          Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             <TextBlock Text="⏳ Carregando estrutura de arquivos..." 
                        HorizontalAlignment="Center"
