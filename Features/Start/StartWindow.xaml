@@ -88,51 +88,6 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Modern button style with subtle gradients and improved hover states -->
-        <Style x:Key="CardButtonStyle" TargetType="Button">
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="16,10"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border CornerRadius="12" x:Name="ButtonBorder">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                    <GradientStop Color="#667EEA" Offset="0"/>
-                                    <GradientStop Color="#764BA2" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonBorder" Property="Background">
-                                    <Setter.Value>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                            <GradientStop Color="#7C8EF7" Offset="0"/>
-                                            <GradientStop Color="#8B5FBF" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonBorder" Property="RenderTransform">
-                                    <Setter.Value>
-                                        <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <!-- Modern sidebar button style -->
         <Style x:Key="SidebarButtonStyle" TargetType="Button">
             <Setter Property="Foreground" Value="#B8BCC8"/>
@@ -199,12 +154,20 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Style="{StaticResource CardStyle}">
-                                <StackPanel>
+                            <Border Style="{StaticResource CardStyle}" Cursor="Hand">
+                                <Border.InputBindings>
+                                    <MouseBinding Gesture="LeftClick" Command="{Binding OpenCommand}"/>
+                                </Border.InputBindings>
+                                
+                                <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="{Binding Icon}" FontSize="52" HorizontalAlignment="Center" Margin="0,0,0,16" Opacity="0.9"/>
                                     <TextBlock Text="{Binding Title}" FontSize="20" FontWeight="SemiBold" Foreground="#FFFFFF" HorizontalAlignment="Center" Margin="0,0,0,8" TextAlignment="Center"/>
                                     <TextBlock Text="{Binding Description}" FontSize="14" Foreground="#B8BCC8" TextWrapping="Wrap" TextAlignment="Center" LineHeight="20" Margin="0,0,0,20"/>
-                                    <Button Content="Abrir" Style="{StaticResource CardButtonStyle}" Command="{Binding OpenCommand}"/>
+                                    
+                                    <!-- Visual indicator that card is clickable -->
+                                    <Border Background="#1A1A2E" CornerRadius="8" Padding="12,6" HorizontalAlignment="Center" Opacity="0.7">
+                                        <TextBlock Text="Clique para abrir" FontSize="12" Foreground="#B8BCC8" FontStyle="Italic"/>
+                                    </Border>
                                 </StackPanel>
                             </Border>
                         </DataTemplate>

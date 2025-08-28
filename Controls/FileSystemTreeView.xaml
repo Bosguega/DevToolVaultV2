@@ -26,15 +26,17 @@
                         <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
                                   IsThreeState="True"
                                   VerticalAlignment="Center"
-                                  Margin="0,0,5,0" />
+                                  Margin="0,0,8,0"
+                                  ToolTip="Selecionar/Deselecionar este item para exportação" />
                         <!-- Icon based on file type -->
                         <TextBlock Text="{Binding IsDirectory, Converter={StaticResource IconConverter}}" 
                                    FontFamily="Segoe UI Emoji"
-                                   FontSize="14"
+                                   FontSize="16"
                                    VerticalAlignment="Center"
                                    Margin="0,0,5,0" />
                         <TextBlock Text="{Binding Name}" 
-                                   VerticalAlignment="Center" />
+                                   VerticalAlignment="Center"
+                                   ToolTip="{Binding FullPath}" />
                     </StackPanel>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>

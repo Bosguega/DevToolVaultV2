@@ -1,4 +1,4 @@
-﻿﻿using System.Windows;
+﻿using System.Windows;
 using DevToolVaultV2.Core.Services;
 
 namespace DevToolVaultV2.Features.Start

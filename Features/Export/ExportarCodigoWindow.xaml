@@ -54,24 +54,59 @@
                 <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
                     <Button Content="Expandir Todos" Command="{Binding ExpandAllCommand}" Margin="0,0,5,0"/>
                     <Button Content="Recolher Todos" Command="{Binding CollapseAllCommand}" Margin="0,0,5,0"/>
-                    <CheckBox Content="Selecionar Todos" IsChecked="{Binding SelectAll, Mode=TwoWay}"/>
+                    <CheckBox Content="Selecionar Todos" IsChecked="{Binding SelectAll, Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                 </StackPanel>
 
                 <controls:FileSystemTreeView x:Name="fileTreeView" Grid.Row="1" Items="{Binding FileSystemItems}" />
             </Grid>
         </GroupBox>
 
-        <!-- Botões de exportação -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
-            <Button Content="Exportar TXT" Command="{Binding ExportTextCommand}" Width="120" Margin="5,0"/>
-            <Button Content="Exportar MD" Command="{Binding ExportMarkdownCommand}" Width="120" Margin="5,0"/>
-            <Button Content="Exportar PDF" Command="{Binding ExportPdfCommand}" Width="120" Margin="5,0"/>
-            <Button Content="Exportar ZIP" Command="{Binding ExportZipCommand}" Width="120" Margin="5,0"/>
-        </StackPanel>
+        <!-- Botões de ação -->
+        <GroupBox Grid.Row="2" Header="Ações" Margin="0,5,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Status de seleção -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15" HorizontalAlignment="Center">
+                    <TextBlock Text="📄 Arquivos selecionados: " FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding SelectedItemsCount}" 
+                               Foreground="Blue" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                    <TextBlock Text=" arquivos" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                </StackPanel>
+                
+                <!-- Botões principais -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0" Content="👁️ Visualizar Selecionados" 
+                            Command="{Binding PreviewSelectedCommand}" 
+                            Margin="0,0,10,0" Padding="15,10"
+                            ToolTip="Visualizar lista dos arquivos selecionados (apenas arquivos)"/>
+                            
+                    <Button Grid.Column="1" Content="📦 Exportar Arquivos" 
+                            Command="{Binding ExportSelectedCommand}" 
+                            Margin="10,0,0,0" Padding="15,10"
+                            ToolTip="Exportar arquivos selecionados (apenas arquivos, não pastas)"/>
+                </Grid>
+            </Grid>
+        </GroupBox>
 
-        <!-- Barra de progresso -->
-        <ProgressBar Grid.Row="3" Height="20" Margin="0,5"
-                     IsIndeterminate="True"
-                     Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        <!-- Barra de progresso e status -->
+        <StackPanel Grid.Row="3" Margin="0,5,0,0">
+            <ProgressBar Height="20" 
+                         IsIndeterminate="True"
+                         Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            <TextBlock Text="⏳ Carregando estrutura de arquivos..." 
+                       HorizontalAlignment="Center"
+                       FontStyle="Italic" Foreground="Gray"
+                       Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" 
+                       Margin="0,5,0,0"/>
+        </StackPanel>
     </Grid>
 </Window>

@@ -1,4 +1,4 @@
-﻿// DevToolVaultV2/Core/Models/FileSystemItem.cs
+﻿﻿// DevToolVaultV2/Core/Models/FileSystemItem.cs
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -17,6 +17,7 @@ namespace DevToolVaultV2.Core.Models
         // Corrigido: List<FileSystemItem>
         private List<FileSystemItem> _children;
         private FileSystemItem _parent;
+        private bool _isUpdatingState; // Flag to prevent recursive updates
 
         // --- Propriedades adicionadas ---
         private string _fullName; // Novo campo de apoio
@@ -42,15 +43,23 @@ namespace DevToolVaultV2.Core.Models
             get => _isChecked;
             set
             {
-                if (SetProperty(ref _isChecked, value))
+                if (SetProperty(ref _isChecked, value) && !_isUpdatingState)
                 {
-                    // Propagar mudança para filhos quando definido explicitamente
-                    if (value.HasValue)
+                    _isUpdatingState = true;
+                    try
                     {
-                        UpdateChildrenState(this, value.Value);
+                        // Propagar mudança para filhos quando definido explicitamente
+                        if (value.HasValue)
+                        {
+                            UpdateChildrenState(this, value.Value);
+                        }
+                        // Notificar pai sobre mudança
+                        _parent?.UpdateParentState();
                     }
-                    // Notificar pai sobre mudança
-                    _parent?.UpdateParentState();
+                    finally
+                    {
+                        _isUpdatingState = false;
+                    }
                 }
             }
         }
@@ -82,7 +91,20 @@ namespace DevToolVaultV2.Core.Models
         public List<FileSystemItem> Children
         {
             get => _children;
-            set => SetProperty(ref _children, value);
+            set
+            {
+                if (SetProperty(ref _children, value))
+                {
+                    // Set parent reference for all children
+                    if (_children != null)
+                    {
+                        foreach (var child in _children)
+                        {
+                            child._parent = this;
+                        }
+                    }
+                }
+            }
         }
 
         public FileSystemItem Parent
@@ -114,36 +136,68 @@ namespace DevToolVaultV2.Core.Models
 
             foreach (var child in item.Children)
             {
-                child.IsChecked = isChecked;
-                UpdateChildrenState(child, isChecked);
+                child._isUpdatingState = true;
+                try
+                {
+                    child._isChecked = isChecked;
+                    child.OnPropertyChanged(nameof(IsChecked));
+                    child.UpdateChildrenState(child, isChecked);
+                }
+                finally
+                {
+                    child._isUpdatingState = false;
+                }
             }
         }
 
         // Corrigido: private
         private void UpdateParentState()
         {
-            if (Parent == null) return;
+            if (Parent == null || Parent._isUpdatingState) return;
 
             bool allChecked = true;
             bool allUnchecked = true;
+            bool hasIndeterminate = false;
 
             foreach (var child in Parent.Children)
             {
-                if (child.IsChecked != true) allChecked = false;
-                if (child.IsChecked != false) allUnchecked = false;
+                if (child.IsChecked == true)
+                {
+                    allUnchecked = false;
+                }
+                else if (child.IsChecked == false)
+                {
+                    allChecked = false;
+                }
+                else // null (indeterminate)
+                {
+                    allChecked = false;
+                    allUnchecked = false;
+                    hasIndeterminate = true;
+                }
             }
 
-            if (allChecked)
+            Parent._isUpdatingState = true;
+            try
             {
-                Parent.IsChecked = true;
+                if (allChecked)
+                {
+                    Parent._isChecked = true;
+                }
+                else if (allUnchecked && !hasIndeterminate)
+                {
+                    Parent._isChecked = false;
+                }
+                else
+                {
+                    Parent._isChecked = null; // Indeterminado
+                }
+                Parent.OnPropertyChanged(nameof(IsChecked));
+                Parent.Parent?.UpdateParentState();
             }
-            else if (allUnchecked)
+            finally
             {
-                Parent.IsChecked = false;
-            }
-            else
-            {
-                Parent.IsChecked = null; // Indeterminado
+                Parent._isUpdatingState = false;
             }
         }
     }

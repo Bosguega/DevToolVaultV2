@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using DevToolVaultV2.Core.Models;
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using DevToolVaultV2.Core.Models;
 using DevToolVaultV2.Core.Services;
 using DevToolVaultV2.Core.Commands;
 using System;
@@ -24,6 +24,7 @@ namespace DevToolVaultV2.Features.Export
         private string _currentPath;
         private bool _isLoading;
         private bool _selectAll;
+        private int _selectedItemsCount;
 
         public ObservableCollection<FileSystemItem> FileSystemItems
         {
@@ -49,8 +50,17 @@ namespace DevToolVaultV2.Features.Export
             set
             {
                 if (SetProperty(ref _selectAll, value))
+                {
                     SetAllItemsChecked(_selectAll);
+                    UpdateSelectedItemsCount();
+                }
             }
+        }
+
+        public int SelectedItemsCount
+        {
+            get => _selectedItemsCount;
+            private set => SetProperty(ref _selectedItemsCount, value);
         }
 
         public string CurrentFilterName => _filterManager.GetActiveProfile()?.Name ?? "Padrão";
@@ -58,10 +68,8 @@ namespace DevToolVaultV2.Features.Export
         // Comandos
         public ICommand SelectFolderCommand { get; }
         public ICommand SelectFilterCommand { get; }
-        public ICommand ExportTextCommand { get; }
-        public ICommand ExportMarkdownCommand { get; }
-        public ICommand ExportPdfCommand { get; }
-        public ICommand ExportZipCommand { get; }
+        public ICommand ExportSelectedCommand { get; }
+        public ICommand PreviewSelectedCommand { get; }
         public ICommand ExpandAllCommand { get; }
         public ICommand CollapseAllCommand { get; }
 
@@ -74,13 +82,14 @@ namespace DevToolVaultV2.Features.Export
             _treeGenerator = new TreeGeneratorService(_filterManager);
 
             FileSystemItems = new ObservableCollection<FileSystemItem>();
+            
+            // Subscribe to collection changes to update selected count
+            FileSystemItems.CollectionChanged += (s, e) => UpdateSelectedItemsCount();
 
             SelectFolderCommand = new RelayCommand<object>(async _ => await SelectFolderAsync());
             SelectFilterCommand = new RelayCommand<object>(_ => SelectFilter());
-            ExportTextCommand = new RelayCommand<object>(async _ => await ExportAsync(ExportFormat.Text));
-            ExportMarkdownCommand = new RelayCommand<object>(async _ => await ExportAsync(ExportFormat.Markdown));
-            ExportPdfCommand = new RelayCommand<object>(async _ => await ExportAsync(ExportFormat.Pdf));
-            ExportZipCommand = new RelayCommand<object>(async _ => await ExportAsync(ExportFormat.Zip));
+            ExportSelectedCommand = new RelayCommand<object>(async _ => await ExportSelectedAsync());
+            PreviewSelectedCommand = new RelayCommand<object>(_ => PreviewSelected());
             ExpandAllCommand = new RelayCommand<object>(_ => SetAllExpanded(true));
             CollapseAllCommand = new RelayCommand<object>(_ => SetAllExpanded(false));
         }
@@ -125,7 +134,11 @@ namespace DevToolVaultV2.Features.Export
                         {
                             item.IsExpanded = true;
                         }
+                        // Subscribe to property changes for counting
+                        SubscribeToItemChanges(item);
                     }
+                    
+                    UpdateSelectedItemsCount();
                 });
                 
                 // Notify property changed to refresh bindings
@@ -166,37 +179,47 @@ namespace DevToolVaultV2.Features.Export
             }
         }
 
-        private async Task ExportAsync(ExportFormat format)
+        private async Task ExportSelectedAsync()
         {
             var selectedItems = new List<FileSystemItem>();
             GetSelectedItemsRecursive(FileSystemItems, selectedItems);
+            
+            // Filter to only include files (not directories)
+            var filesOnly = selectedItems.Where(item => !item.IsDirectory).ToList();
 
-            if (!selectedItems.Any())
+            if (!filesOnly.Any())
             {
-                MessageBox.Show("Nenhum item selecionado.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Nenhum arquivo selecionado. Apenas arquivos podem ser exportados.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
+            // Direct format selection via save dialog filter
             var saveDialog = new Microsoft.Win32.SaveFileDialog
             {
-                Filter = format switch
-                {
-                    ExportFormat.Text => "Arquivo de Texto (*.txt)|*.txt",
-                    ExportFormat.Markdown => "Arquivo Markdown (*.md)|*.md",
-                    ExportFormat.Pdf => "Arquivo PDF (*.pdf)|*.pdf",
-                    ExportFormat.Zip => "Arquivo ZIP (*.zip)|*.zip",
-                    _ => "Todos os arquivos (*.*)|*.*"
-                },
-                FileName = $"Export_{Path.GetFileName(CurrentPath)}"
+                Filter = "Arquivo de Texto (*.txt)|*.txt|Arquivo Markdown (*.md)|*.md|Arquivo PDF (*.pdf)|*.pdf|Arquivo ZIP (*.zip)|*.zip",
+                FilterIndex = 1, // Default to TXT
+                FileName = $"Export_{Path.GetFileName(CurrentPath)}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}",
+                Title = $"Exportar {filesOnly.Count} arquivos - Selecione o formato"
             };
 
             if (saveDialog.ShowDialog() == true)
             {
+                // Determine format based on selected filter
+                var selectedFormat = saveDialog.FilterIndex switch
+                {
+                    1 => ExportFormat.Text,
+                    2 => ExportFormat.Markdown,
+                    3 => ExportFormat.Pdf,
+                    4 => ExportFormat.Zip,
+                    _ => ExportFormat.Text
+                };
+                
                 IsLoading = true;
                 try
                 {
-                    await _exportService.ExportAsync(selectedItems, saveDialog.FileName, format);
-                    MessageBox.Show($"Exportação concluída: {saveDialog.FileName}", "Sucesso", MessageBoxButton.OK, MessageBoxImage.Information);
+                    await _exportService.ExportAsync(filesOnly, saveDialog.FileName, selectedFormat);
+                    MessageBox.Show($"Exportação concluída com sucesso!\n\nFormato: {GetFormatDisplayName(selectedFormat)}\nArquivo: {saveDialog.FileName}\nArquivos exportados: {filesOnly.Count}", 
+                        "Sucesso", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
@@ -207,6 +230,39 @@ namespace DevToolVaultV2.Features.Export
                     IsLoading = false;
                 }
             }
+        }
+
+        private void PreviewSelected()
+        {
+            var selectedItems = new List<FileSystemItem>();
+            GetSelectedItemsRecursive(FileSystemItems, selectedItems);
+            
+            // Filter to only include files (not directories)
+            var filesOnly = selectedItems.Where(item => !item.IsDirectory).ToList();
+
+            if (!filesOnly.Any())
+            {
+                MessageBox.Show("Nenhum arquivo selecionado para visualizar. Apenas arquivos são exibidos na visualização.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var previewWindow = new SelectedItemsPreviewWindow(filesOnly)
+            {
+                Owner = Application.Current.MainWindow
+            };
+            previewWindow.ShowDialog();
+        }
+
+        private string GetFormatDisplayName(ExportFormat format)
+        {
+            return format switch
+            {
+                ExportFormat.Text => "Texto (.txt)",
+                ExportFormat.Markdown => "Markdown (.md)", 
+                ExportFormat.Pdf => "PDF (.pdf)",
+                ExportFormat.Zip => "ZIP (.zip)",
+                _ => "Desconhecido"
+            };
         }
 
         private void GetSelectedItemsRecursive(IEnumerable<FileSystemItem> items, List<FileSystemItem> selectedItems)
@@ -232,6 +288,7 @@ namespace DevToolVaultV2.Features.Export
                 }
             }
             CheckAll(FileSystemItems);
+            UpdateSelectedItemsCount();
         }
 
         private void SetAllExpanded(bool isExpanded)
@@ -248,6 +305,7 @@ namespace DevToolVaultV2.Features.Export
             ExpandAll(FileSystemItems);
         }
 
+        
         protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
@@ -259,6 +317,33 @@ namespace DevToolVaultV2.Features.Export
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        
+        private void UpdateSelectedItemsCount()
+        {
+            var selectedItems = new List<FileSystemItem>();
+            GetSelectedItemsRecursive(FileSystemItems, selectedItems);
+            // Count only files, not directories
+            SelectedItemsCount = selectedItems.Count(item => !item.IsDirectory);
+        }
+        
+        private void SubscribeToItemChanges(FileSystemItem item)
+        {
+            item.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(FileSystemItem.IsChecked))
+                {
+                    UpdateSelectedItemsCount();
+                }
+            };
+            
+            if (item.Children != null)
+            {
+                foreach (var child in item.Children)
+                {
+                    SubscribeToItemChanges(child);
+                }
+            }
         }
     }
 }
