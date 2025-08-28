@@ -14,17 +14,27 @@
     </UserControl.Resources>
 
     <Grid>
-        <TreeView x:Name="treeView" ItemsSource="{Binding Items}">
+        <TreeView x:Name="treeView">
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                </Style>
+            </TreeView.ItemContainerStyle>
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate ItemsSource="{Binding Children}" DataType="{x:Type models:FileSystemItem}">
                     <StackPanel Orientation="Horizontal">
                         <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
                                   IsThreeState="True"
-                                  Checked="CheckBox_Checked"
-                                  Unchecked="CheckBox_Unchecked" />
-                        <!-- Corrigido: Usar ContentPresenter para exibir o PackIcon retornado pelo converter -->
-                        <ContentPresenter Content="{Binding Name, Converter={StaticResource IconConverter}}" Width="16" Height="16" />
-                        <TextBlock Text="{Binding Name}" Margin="5,0,0,0" />
+                                  VerticalAlignment="Center"
+                                  Margin="0,0,5,0" />
+                        <!-- Icon based on file type -->
+                        <TextBlock Text="{Binding IsDirectory, Converter={StaticResource IconConverter}}" 
+                                   FontFamily="Segoe UI Emoji"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,5,0" />
+                        <TextBlock Text="{Binding Name}" 
+                                   VerticalAlignment="Center" />
                     </StackPanel>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>

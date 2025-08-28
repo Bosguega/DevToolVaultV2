@@ -20,11 +20,28 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Caminho da pasta -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
-            <TextBox Text="{Binding CurrentPath}" IsReadOnly="True" Width="300" Margin="0,0,5,0"/>
-            <Button Content="Selecionar Pasta" Command="{Binding SelectFolderCommand}" Width="120"/>
-        </StackPanel>
+        <!-- Caminhos e filtros -->
+        <Grid Grid.Row="0" Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Caminho da pasta -->
+            <TextBox Grid.Column="0" Text="{Binding CurrentPath}" IsReadOnly="True" Margin="0,0,5,0" VerticalAlignment="Center"/>
+            
+            <!-- Botão Selecionar Pasta -->
+            <Button Grid.Column="1" Content="Selecionar Pasta" Command="{Binding SelectFolderCommand}" Margin="5,0"/>
+            
+            <!-- Botão Selecionar Filtro -->
+            <Button Grid.Column="2" Content="Selecionar Filtro" Command="{Binding SelectFilterCommand}" Margin="5,0"/>
+            
+            <!-- Filtro atual -->
+            <TextBlock Grid.Column="3" Text="{Binding CurrentFilterName, StringFormat='Filtro: {0}'}" 
+                       VerticalAlignment="Center" Margin="10,0,0,0" FontWeight="Bold"/>
+        </Grid>
 
         <!-- Árvore de arquivos -->
         <GroupBox Grid.Row="1" Header="Estrutura de Arquivos">
@@ -46,9 +63,10 @@
 
         <!-- Botões de exportação -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
-            <Button Content="Exportar TXT" Command="{Binding ExportTextCommand}" Width="150" Margin="5,0"/>
-            <Button Content="Exportar PDF" Command="{Binding ExportPdfCommand}" Width="150" Margin="5,0"/>
-            <Button Content="Exportar ZIP" Command="{Binding ExportZipCommand}" Width="150" Margin="5,0"/>
+            <Button Content="Exportar TXT" Command="{Binding ExportTextCommand}" Width="120" Margin="5,0"/>
+            <Button Content="Exportar MD" Command="{Binding ExportMarkdownCommand}" Width="120" Margin="5,0"/>
+            <Button Content="Exportar PDF" Command="{Binding ExportPdfCommand}" Width="120" Margin="5,0"/>
+            <Button Content="Exportar ZIP" Command="{Binding ExportZipCommand}" Width="120" Margin="5,0"/>
         </StackPanel>
 
         <!-- Barra de progresso -->

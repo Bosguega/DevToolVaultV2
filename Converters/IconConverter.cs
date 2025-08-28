@@ -1,4 +1,4 @@
-﻿// DevToolVaultV2/Converters/IconConverter.cs
+﻿﻿// DevToolVaultV2/Converters/IconConverter.cs
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -36,32 +36,14 @@ namespace DevToolVaultV2.Converters
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            // value é o 'Name' do FileSystemItem (string)
-            if (value is string name)
+            // value is IsDirectory (bool)
+            if (value is bool isDirectory)
             {
-                // Determina a extensão
-                string extension = Path.GetExtension(name).ToLowerInvariant();
-
-                // Se não tem extensão, assume que é uma pasta
-                if (string.IsNullOrEmpty(extension))
-                {
-                    return new PackIcon { Kind = PackIconKind.Folder, Width = 16, Height = 16 };
-                }
-
-                // Tenta obter o ícone baseado na extensão
-                if (ExtensionIconMap.TryGetValue(extension, out PackIconKind kind))
-                {
-                    return new PackIcon { Kind = kind, Width = 16, Height = 16 };
-                }
-                else
-                {
-                    // Ícone padrão para arquivos desconhecidos
-                    return new PackIcon { Kind = PackIconKind.FileDocumentOutline, Width = 16, Height = 16 };
-                }
+                return isDirectory ? "📁" : "📄"; // Folder or File emoji
             }
 
-            // Retorna um ícone padrão se o valor não for uma string
-            return new PackIcon { Kind = PackIconKind.FileDocument, Width = 16, Height = 16 };
+            // Default to file icon
+            return "📄";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

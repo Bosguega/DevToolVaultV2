@@ -1,5 +1,6 @@
-﻿// DevToolVaultV2/Controls/FileSystemTreeView.xaml.cs
+﻿﻿﻿// DevToolVaultV2/Controls/FileSystemTreeView.xaml.cs
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,14 +15,23 @@ namespace DevToolVaultV2.Controls
             InitializeComponent();
         }
 
-        public List<FileSystemItem> Items
+        public System.Collections.IEnumerable Items
         {
-            get => (List<FileSystemItem>)GetValue(ItemsProperty);
+            get => (System.Collections.IEnumerable)GetValue(ItemsProperty);
             set => SetValue(ItemsProperty, value);
         }
 
         public static readonly DependencyProperty ItemsProperty =
-            DependencyProperty.Register(nameof(Items), typeof(List<FileSystemItem>), typeof(FileSystemTreeView));
+            DependencyProperty.Register(nameof(Items), typeof(System.Collections.IEnumerable), typeof(FileSystemTreeView),
+                new PropertyMetadata(null, OnItemsChanged));
+                
+        private static void OnItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is FileSystemTreeView control)
+            {
+                control.treeView.ItemsSource = e.NewValue as System.Collections.IEnumerable;
+            }
+        }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {

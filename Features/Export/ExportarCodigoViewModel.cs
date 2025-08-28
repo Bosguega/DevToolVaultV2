@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using DevToolVaultV2.Core.Models;
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using DevToolVaultV2.Core.Models;
 using DevToolVaultV2.Core.Services;
 using DevToolVaultV2.Core.Commands;
 using System;
@@ -53,9 +53,13 @@ namespace DevToolVaultV2.Features.Export
             }
         }
 
+        public string CurrentFilterName => _filterManager.GetActiveProfile()?.Name ?? "Padrão";
+
         // Comandos
         public ICommand SelectFolderCommand { get; }
+        public ICommand SelectFilterCommand { get; }
         public ICommand ExportTextCommand { get; }
+        public ICommand ExportMarkdownCommand { get; }
         public ICommand ExportPdfCommand { get; }
         public ICommand ExportZipCommand { get; }
         public ICommand ExpandAllCommand { get; }
@@ -72,7 +76,9 @@ namespace DevToolVaultV2.Features.Export
             FileSystemItems = new ObservableCollection<FileSystemItem>();
 
             SelectFolderCommand = new RelayCommand<object>(async _ => await SelectFolderAsync());
+            SelectFilterCommand = new RelayCommand<object>(_ => SelectFilter());
             ExportTextCommand = new RelayCommand<object>(async _ => await ExportAsync(ExportFormat.Text));
+            ExportMarkdownCommand = new RelayCommand<object>(async _ => await ExportAsync(ExportFormat.Markdown));
             ExportPdfCommand = new RelayCommand<object>(async _ => await ExportAsync(ExportFormat.Pdf));
             ExportZipCommand = new RelayCommand<object>(async _ => await ExportAsync(ExportFormat.Zip));
             ExpandAllCommand = new RelayCommand<object>(_ => SetAllExpanded(true));
@@ -99,16 +105,64 @@ namespace DevToolVaultV2.Features.Export
             IsLoading = true;
             try
             {
+                // Generate tree in background thread
                 var items = await Task.Run(() => _treeGenerator.GenerateTree(path));
-                FileSystemItems = new ObservableCollection<FileSystemItem>(items);
+                
+                // Update UI on dispatcher thread
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    // Clear and rebuild the collection to ensure UI updates
+                    FileSystemItems.Clear();
+                    foreach (var item in items)
+                    {
+                        FileSystemItems.Add(item);
+                    }
+                    
+                    // Expand first level items for better user experience
+                    foreach (var item in FileSystemItems)
+                    {
+                        if (item.IsDirectory && item.Children?.Any() == true)
+                        {
+                            item.IsExpanded = true;
+                        }
+                    }
+                });
+                
+                // Notify property changed to refresh bindings
+                OnPropertyChanged(nameof(FileSystemItems));
+                OnPropertyChanged(nameof(CurrentFilterName));
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao carregar diretório: {ex.Message}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+                // Show error message on UI thread
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    MessageBox.Show($"Erro ao carregar diretório: {ex.Message}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+                });
             }
             finally
             {
                 IsLoading = false;
+            }
+        }
+
+        private async void SelectFilter()
+        {
+            var selectorWindow = new Features.Filters.ProjectTypeSelectorWindow(_filterManager)
+            {
+                Owner = Application.Current.MainWindow
+            };
+            
+            if (selectorWindow.ShowDialog() == true && selectorWindow.SelectedProfile != null)
+            {
+                _filterManager.SetActiveProfile(selectorWindow.SelectedProfile);
+                OnPropertyChanged(nameof(CurrentFilterName));
+                
+                // Reload the directory with new filter if a path is selected
+                if (!string.IsNullOrWhiteSpace(CurrentPath))
+                {
+                    await LoadDirectoryAsync(CurrentPath);
+                }
             }
         }
 
@@ -127,10 +181,11 @@ namespace DevToolVaultV2.Features.Export
             {
                 Filter = format switch
                 {
-                    ExportFormat.Text => "TXT (*.txt)|*.txt",
-                    ExportFormat.Pdf => "PDF (*.pdf)|*.pdf",
-                    ExportFormat.Zip => "ZIP (*.zip)|*.zip",
-                    _ => "Arquivo (*)|*.*"
+                    ExportFormat.Text => "Arquivo de Texto (*.txt)|*.txt",
+                    ExportFormat.Markdown => "Arquivo Markdown (*.md)|*.md",
+                    ExportFormat.Pdf => "Arquivo PDF (*.pdf)|*.pdf",
+                    ExportFormat.Zip => "Arquivo ZIP (*.zip)|*.zip",
+                    _ => "Todos os arquivos (*.*)|*.*"
                 },
                 FileName = $"Export_{Path.GetFileName(CurrentPath)}"
             };
@@ -199,6 +254,11 @@ namespace DevToolVaultV2.Features.Export
             field = value;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
             return true;
+        }
+        
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
