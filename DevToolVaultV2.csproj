@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<AssemblyTitle>DevToolVault</AssemblyTitle>
+		<Product>DevToolVault</Product>
+		<Company>Seu Nome</Company>
+		<Copyright>© 2025</Copyright>
+		<Version>1.0.0</Version>
+		<ApplicationIcon>app.ico</ApplicationIcon>
+	</PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="itext7" Version="9.2.0" />
+    <PackageReference Include="MaterialDesignColors" Version="5.2.1" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
+    <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<Content Include="app.ico" />
+	</ItemGroup>
+
+
+</Project>

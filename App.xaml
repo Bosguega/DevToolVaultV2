@@ -1,0 +1,19 @@
+﻿<!-- App.xaml -->
+<Application x:Class="DevToolVaultV2.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converters="clr-namespace:DevToolVaultV2.Converters">
+    <!-- Adicione este xmlns -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Material Design themes -->
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <!-- Seus recursos personalizados aqui -->
+            <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+            <!-- Adicione o recurso aqui -->
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
