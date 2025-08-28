@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using DevToolVaultV2.Features.Structure;
@@ -20,7 +20,7 @@ namespace DevToolVaultV2.Core.Services
         {
             if (typeof(T) == typeof(EstruturaWindow))
             {
-                var vm = _serviceProvider.GetService<EstruturaViewModel>();
+                var vm = _serviceProvider.GetRequiredService<EstruturaViewModel>();
                 var window = new EstruturaWindow(vm)
                 {
                     Owner = Application.Current.MainWindow
@@ -31,10 +31,7 @@ namespace DevToolVaultV2.Core.Services
 
             if (typeof(T) == typeof(ExportarCodigoWindow))
             {
-                var filterManager = _serviceProvider.GetService<FileFilterManager>();
-                var exportService = _serviceProvider.GetService<IExportService>();
-
-                var vm = new ExportarCodigoViewModel(filterManager, exportService);
+                var vm = _serviceProvider.GetRequiredService<ExportarCodigoViewModel>();
                 var window = new ExportarCodigoWindow(vm)
                 {
                     Owner = Application.Current.MainWindow
@@ -43,8 +40,13 @@ namespace DevToolVaultV2.Core.Services
                 return;
             }
 
+            // For other windows, try to get them directly from DI
             var genericWindow = _serviceProvider.GetService<T>();
-            genericWindow?.Show();
+            if (genericWindow != null)
+            {
+                genericWindow.Owner = Application.Current.MainWindow;
+                genericWindow.Show();
+            }
         }
 
         public void ShowDialog<T>() where T : Window

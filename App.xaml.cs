@@ -45,10 +45,12 @@ namespace DevToolVaultV2
             // ViewModels
             services.AddTransient<DevToolVaultV2.Features.Start.StartWindowViewModel>();
             services.AddTransient<DevToolVaultV2.Features.Structure.EstruturaViewModel>();
+            services.AddTransient<DevToolVaultV2.Features.Export.ExportarCodigoViewModel>();
 
             ServiceProvider = services.BuildServiceProvider();
 
             var mainWindow = ServiceProvider.GetRequiredService<Features.Start.StartWindow>();
+            MainWindow = mainWindow; // Set as MainWindow for proper Owner property
             mainWindow.Show();
 
             base.OnStartup(e);
