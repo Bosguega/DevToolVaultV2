@@ -26,6 +26,7 @@ namespace DevToolVaultV2
             services.AddSingleton<FileFilterManager>();
             services.AddSingleton<FileStatistics>();
             services.AddSingleton<IAppNavigationService, AppNavigationService>();
+            services.AddSingleton<ITreeGeneratorService, TreeGeneratorService>();
 
             // Estratégias de exportação
             services.AddTransient<ITextExportStrategy, TextExportStrategy>();

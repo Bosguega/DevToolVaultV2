@@ -1,4 +1,4 @@
-﻿﻿﻿using System;
+﻿﻿﻿﻿﻿﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,19 +12,19 @@ namespace DevToolVaultV2.Core.Services
 
         public TreeGeneratorService(FileFilterManager filterManager)
         {
-            _filterApplier = new FileFilterApplier(filterManager);
+            _filterApplier = new FileFilterApplier(filterManager ?? throw new ArgumentNullException(nameof(filterManager)));
         }
 
         public List<FileSystemItem> GenerateTree(string rootPath)
         {
-            var rootDirectory = new DirectoryInfo(rootPath);
-            return CreateDirectoryNode(rootDirectory, rootPath);
+            // Use default active profile from filter manager
+            return BuildFileSystemTree(rootPath, null);
         }
 
         public List<FileSystemItem> BuildFileSystemTree(string rootPath, FilterProfile profile)
         {
-            // Implementation of the interface method
-            return GenerateTree(rootPath);
+            var rootDirectory = new DirectoryInfo(rootPath);
+            return CreateDirectoryNode(rootDirectory, rootPath);
         }
 
         private List<FileSystemItem> CreateDirectoryNode(DirectoryInfo directory, string rootPath)

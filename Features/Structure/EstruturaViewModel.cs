@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿// DevToolVaultV2/Features/Structure/EstruturaViewModel.cs
+﻿﻿// DevToolVaultV2/Features/Structure/EstruturaViewModel.cs
 using DevToolVaultV2.Core.Commands;
 using DevToolVaultV2.Core.Models;
 using DevToolVaultV2.Core.Services;
