@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,7 +6,7 @@ using DevToolVaultV2.Core.Models;
 
 namespace DevToolVaultV2.Core.Services
 {
-    public class TreeGeneratorService
+    public class TreeGeneratorService : ITreeGeneratorService
     {
         private readonly FileFilterApplier _filterApplier;
 
@@ -18,10 +18,16 @@ namespace DevToolVaultV2.Core.Services
         public List<FileSystemItem> GenerateTree(string rootPath)
         {
             var rootDirectory = new DirectoryInfo(rootPath);
-            return CreateDirectoryNode(rootDirectory);
+            return CreateDirectoryNode(rootDirectory, rootPath);
         }
 
-        private List<FileSystemItem> CreateDirectoryNode(DirectoryInfo directory)
+        public List<FileSystemItem> BuildFileSystemTree(string rootPath, FilterProfile profile)
+        {
+            // Implementation of the interface method
+            return GenerateTree(rootPath);
+        }
+
+        private List<FileSystemItem> CreateDirectoryNode(DirectoryInfo directory, string rootPath)
         {
             var nodes = new List<FileSystemItem>();
 
@@ -37,10 +43,11 @@ namespace DevToolVaultV2.Core.Services
                     {
                         Name = subDir.Name,
                         FullPath = subDir.FullName,
+                        RelativePath = Path.GetRelativePath(rootPath, subDir.FullName),
                         IsDirectory = true,
                         IsExpanded = false,
                         IsChecked = false,
-                        Children = CreateDirectoryNode(subDir)
+                        Children = CreateDirectoryNode(subDir, rootPath)
                     };
 
                     // Definir parentesco
@@ -62,6 +69,7 @@ namespace DevToolVaultV2.Core.Services
                     {
                         Name = file.Name,
                         FullPath = file.FullName,
+                        RelativePath = Path.GetRelativePath(rootPath, file.FullName),
                         IsDirectory = false,
                         IsChecked = false
                     };

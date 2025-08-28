@@ -42,6 +42,7 @@ namespace DevToolVaultV2
             services.AddTransient<Features.Filters.ProjectTypeSelectorWindow>();
 
             // ViewModels
+            services.AddTransient<DevToolVaultV2.Features.Start.StartWindowViewModel>();
             services.AddTransient<DevToolVaultV2.Features.Structure.EstruturaViewModel>();
 
             ServiceProvider = services.BuildServiceProvider();

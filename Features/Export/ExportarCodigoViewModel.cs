@@ -1,5 +1,6 @@
-﻿using DevToolVaultV2.Core.Models;
+﻿﻿﻿﻿using DevToolVaultV2.Core.Models;
 using DevToolVaultV2.Core.Services;
+using DevToolVaultV2.Core.Commands;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -70,12 +71,12 @@ namespace DevToolVaultV2.Features.Export
 
             FileSystemItems = new ObservableCollection<FileSystemItem>();
 
-            SelectFolderCommand = new RelayCommand(async _ => await SelectFolderAsync());
-            ExportTextCommand = new RelayCommand(async _ => await ExportAsync(ExportFormat.Text));
-            ExportPdfCommand = new RelayCommand(async _ => await ExportAsync(ExportFormat.Pdf));
-            ExportZipCommand = new RelayCommand(async _ => await ExportAsync(ExportFormat.Zip));
-            ExpandAllCommand = new RelayCommand(_ => SetAllExpanded(true));
-            CollapseAllCommand = new RelayCommand(_ => SetAllExpanded(false));
+            SelectFolderCommand = new RelayCommand<object>(async _ => await SelectFolderAsync());
+            ExportTextCommand = new RelayCommand<object>(async _ => await ExportAsync(ExportFormat.Text));
+            ExportPdfCommand = new RelayCommand<object>(async _ => await ExportAsync(ExportFormat.Pdf));
+            ExportZipCommand = new RelayCommand<object>(async _ => await ExportAsync(ExportFormat.Zip));
+            ExpandAllCommand = new RelayCommand<object>(_ => SetAllExpanded(true));
+            CollapseAllCommand = new RelayCommand<object>(_ => SetAllExpanded(false));
         }
 
         private async Task SelectFolderAsync()
@@ -198,26 +199,6 @@ namespace DevToolVaultV2.Features.Export
             field = value;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
             return true;
-        }
-
-        public class RelayCommand : ICommand
-        {
-            private readonly Action<object> _execute;
-            private readonly Func<object, bool> _canExecute;
-
-            public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
-            {
-                _execute = execute;
-                _canExecute = canExecute;
-            }
-
-            public bool CanExecute(object parameter) => _canExecute?.Invoke(parameter) ?? true;
-            public void Execute(object parameter) => _execute(parameter);
-            public event EventHandler CanExecuteChanged
-            {
-                add => CommandManager.RequerySuggested += value;
-                remove => CommandManager.RequerySuggested -= value;
-            }
         }
     }
 }

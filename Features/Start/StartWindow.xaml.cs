@@ -1,14 +1,14 @@
-﻿using System.Windows;
+﻿﻿using System.Windows;
 using DevToolVaultV2.Core.Services;
 
 namespace DevToolVaultV2.Features.Start
 {
     public partial class StartWindow : Window
     {
-        public StartWindow(FileFilterManager filterManager, IAppNavigationService navigationService)
+        public StartWindow(StartWindowViewModel viewModel)
         {
             InitializeComponent();
-            DataContext = new StartWindowViewModel(filterManager, navigationService);
+            DataContext = viewModel;
         }
     }
 }
