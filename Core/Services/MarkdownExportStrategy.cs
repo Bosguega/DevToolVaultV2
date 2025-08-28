@@ -1,4 +1,4 @@
-﻿// DevToolVaultV2_Refatorado/Core/Services/MarkdownExportStrategy.cs
+﻿// DevToolVaultV2/Core/Services/MarkdownExportStrategy.cs
 using System;
 using System.Collections.Generic;
 using System.IO;

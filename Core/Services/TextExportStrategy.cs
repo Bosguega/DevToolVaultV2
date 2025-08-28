@@ -1,4 +1,4 @@
-﻿// DevToolVaultV2_Refatorado/Core/Services/TextExportStrategy.cs
+﻿// DevToolVaultV2/Core/Services/TextExportStrategy.cs
 using System;
 using System.Collections.Generic;
 using System.IO;

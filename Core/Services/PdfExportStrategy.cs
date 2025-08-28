@@ -1,4 +1,4 @@
-﻿// DevToolVaultV2_Refatorado/Core/Services/PdfExportStrategy.cs
+﻿// DevToolVaultV2/Core/Services/PdfExportStrategy.cs
 using System;
 using System.Collections.Generic;
 using System.IO;

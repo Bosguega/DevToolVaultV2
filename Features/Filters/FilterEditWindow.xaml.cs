@@ -1,4 +1,4 @@
-﻿// DevToolVaultV2_Refatorado/Features/Filters/FilterEditWindow.xaml.cs
+﻿// DevToolVaultV2/Features/Filters/FilterEditWindow.xaml.cs
 using DevToolVaultV2.Core.Models; // <<< Corrigido o namespace para FilterProfile
 using System;
 using System.IO; // Adicionado para Path e outras utilidades

@@ -1,4 +1,4 @@
-﻿// DevToolVaultV2_Refatorado/Core/Services/ZipExportStrategy.cs
+﻿// DevToolVaultV2/Core/Services/ZipExportStrategy.cs
 using System;
 using System.Collections.Generic;
 using System.IO;

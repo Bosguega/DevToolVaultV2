@@ -1,4 +1,4 @@
-﻿// DevToolVaultV2_Refatorado/Core/Models/FileSystemItem.cs
+﻿// DevToolVaultV2/Core/Models/FileSystemItem.cs
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;

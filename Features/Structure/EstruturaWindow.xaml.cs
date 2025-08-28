@@ -1,4 +1,4 @@
-// DevToolVaultV2_Refatorado/Features/Structure/EstruturaWindow.xaml.cs
+// DevToolVaultV2/Features/Structure/EstruturaWindow.xaml.cs
 using System.Windows;
 using DevToolVaultV2.Core.Services; // Se ainda for usado para algo específico no code-behind
 using Microsoft.Extensions.DependencyInjection; // Para IServiceProvider

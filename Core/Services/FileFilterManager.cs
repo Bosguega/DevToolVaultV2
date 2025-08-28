@@ -1,4 +1,4 @@
-﻿// DevToolVaultV2_Refatorado/Core/Services/FileFilterManager.cs
+﻿// DevToolVaultV2/Core/Services/FileFilterManager.cs
 using DevToolVaultV2.Core.Models; // Assumindo que FilterProfile está aqui
 using System;
 using System.Collections.Generic;

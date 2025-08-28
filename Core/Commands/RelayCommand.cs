@@ -1,4 +1,4 @@
-﻿// DevToolVaultV2_Refatorado/Core/Commands/RelayCommand.cs
+﻿// DevToolVaultV2/Core/Commands/RelayCommand.cs
 using System;
 using System.Windows.Input;
 

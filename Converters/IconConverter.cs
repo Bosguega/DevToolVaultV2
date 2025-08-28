@@ -1,4 +1,4 @@
-﻿// DevToolVaultV2_Refatorado/Converters/IconConverter.cs
+﻿// DevToolVaultV2/Converters/IconConverter.cs
 using System;
 using System.Collections.Generic;
 using System.Globalization;
