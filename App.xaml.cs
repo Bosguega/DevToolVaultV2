@@ -28,6 +28,7 @@ namespace DevToolVaultV2
             services.AddSingleton<IAppNavigationService, AppNavigationService>();
             services.AddSingleton<ITreeGeneratorService, TreeGeneratorService>();
             services.AddSingleton<TreeToMermaidConverter>();
+            services.AddSingleton<MermaidToTreeConverter>();
             services.AddSingleton<FileSystemCreator>();
 
             // Estratégias de exportação

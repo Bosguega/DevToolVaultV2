@@ -18,6 +18,7 @@ namespace DevToolVaultV2.Features.TreetoFiles
     public class TreetoFilesViewModel : BaseViewModel
     {
         private readonly TreeToMermaidConverter _mermaidConverter;
+        private readonly MermaidToTreeConverter _treeConverter;
         private readonly FileSystemCreator _fileSystemCreator;
         
         private string _inputTreeText;
@@ -65,19 +66,22 @@ namespace DevToolVaultV2.Features.TreetoFiles
         // Commands
         public ICommand SelectDirectoryCommand { get; }
         public ICommand ConvertToMermaidCommand { get; }
+        public ICommand ConvertToTreeCommand { get; }
         public ICommand CreateFilesCommand { get; }
         public ICommand ClearCommand { get; }
         public ICommand CloseCommand { get; }
 
-        public TreetoFilesViewModel(TreeToMermaidConverter mermaidConverter, FileSystemCreator fileSystemCreator)
+        public TreetoFilesViewModel(TreeToMermaidConverter mermaidConverter, MermaidToTreeConverter treeConverter, FileSystemCreator fileSystemCreator)
         {
             _mermaidConverter = mermaidConverter;
+            _treeConverter = treeConverter;
             _fileSystemCreator = fileSystemCreator;
             
             CreateEmptyFiles = true;
             
             SelectDirectoryCommand = new RelayCommand<object>(_ => SelectDirectory());
             ConvertToMermaidCommand = new RelayCommand<object>(_ => ConvertToMermaid());
+            ConvertToTreeCommand = new RelayCommand<object>(_ => ConvertMermaidToTree());
             CreateFilesCommand = new RelayCommand<object>(_ => CreateFilesAndFolders(), _ => CanCreateFiles());
             ClearCommand = new RelayCommand<object>(_ => ClearAll());
             CloseCommand = new RelayCommand<object>(_ => CloseWindow());
@@ -109,6 +113,26 @@ namespace DevToolVaultV2.Features.TreetoFiles
 
             var result = _mermaidConverter.ConvertTreeToMermaid(InputTreeText);
             MermaidOutput = result.MermaidDiagram;
+        }
+
+        private void ConvertMermaidToTree()
+        {
+            if (string.IsNullOrWhiteSpace(MermaidOutput))
+            {
+                MessageBox.Show("Nenhum diagrama Mermaid encontrado para converter.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var result = _treeConverter.ConvertMermaidToTreeText(MermaidOutput);
+            if (result.IsSuccess)
+            {
+                InputTreeText = result.TreeText;
+                MessageBox.Show("Mermaid convertido para árvore ASCII com sucesso!", "Sucesso", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show($"Erro ao converter Mermaid para árvore:\n{result.ErrorMessage}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private bool CanCreateFiles()

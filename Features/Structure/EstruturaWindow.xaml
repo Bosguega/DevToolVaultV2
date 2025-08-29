@@ -120,7 +120,8 @@
             <StackPanel Orientation="Horizontal" Margin="0,0,20,0" VerticalAlignment="Center">
                 <TextBlock Text="Formato:" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold"/>
                 <RadioButton Content="ASCII" IsChecked="{Binding UseAsciiTree}" GroupName="TreeFormat"/>
-                <RadioButton Content="Gráfico" IsChecked="{Binding UseAsciiTree, Converter={StaticResource InverseBooleanConverter}}" GroupName="TreeFormat"/>
+                <RadioButton Content="Gráfico" IsChecked="{Binding UseGraphicTree}" GroupName="TreeFormat"/>
+                <RadioButton Content="Mermaid" IsChecked="{Binding UseMermaidTree}" GroupName="TreeFormat"/>
             </StackPanel>
 
             <!-- Ações -->

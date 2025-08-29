@@ -114,15 +114,26 @@
                     <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
                         <TextBlock Text="Visualização Mermaid gerada automaticamente:" VerticalAlignment="Center" FontWeight="Normal"/>
                         <Button Content="🔄 Converter" Command="{Binding ConvertToMermaidCommand}" Margin="10,0,0,0" Background="#2196F3"/>
+                        <Button Content="⬅️ Para Árvore" Command="{Binding ConvertToTreeCommand}" Margin="5,0,0,0" Background="#9C27B0" ToolTip="Converter Mermaid para árvore ASCII"/>
                     </StackPanel>
 
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                        <TextBox Text="{Binding MermaidOutput, Mode=OneWay}" 
-                                 IsReadOnly="True"
+                        <TextBox Text="{Binding MermaidOutput, UpdateSourceTrigger=PropertyChanged}" 
                                  AcceptsReturn="True" 
                                  TextWrapping="NoWrap"
                                  Background="#F8F8F8"
-                                 MinHeight="300"/>
+                                 MinHeight="300"
+                                 ToolTip="Cole ou edite o diagrama Mermaid aqui">
+                            <TextBox.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Recortar" Command="ApplicationCommands.Cut" InputGestureText="Ctrl+X"/>
+                                    <MenuItem Header="Copiar" Command="ApplicationCommands.Copy" InputGestureText="Ctrl+C"/>
+                                    <MenuItem Header="Colar" Command="ApplicationCommands.Paste" InputGestureText="Ctrl+V"/>
+                                    <Separator/>
+                                    <MenuItem Header="Selecionar Tudo" Command="ApplicationCommands.SelectAll" InputGestureText="Ctrl+A"/>
+                                </ContextMenu>
+                            </TextBox.ContextMenu>
+                        </TextBox>
                     </ScrollViewer>
                 </Grid>
             </GroupBox>

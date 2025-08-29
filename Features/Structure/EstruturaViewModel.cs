@@ -1,4 +1,4 @@
-﻿﻿// DevToolVaultV2/Features/Structure/EstruturaViewModel.cs
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿// DevToolVaultV2/Features/Structure/EstruturaViewModel.cs
 using DevToolVaultV2.Core.Commands;
 using DevToolVaultV2.Core.Models;
 using DevToolVaultV2.Core.Services;
@@ -24,6 +24,7 @@ namespace DevToolVaultV2.Features.Structure
     {
         private readonly FileFilterManager _filterManager;
         private readonly TreeGeneratorService _treeGenerator;
+        private readonly TreeToMermaidConverter _mermaidConverter;
 
         private List<FileSystemItem> _items;
         public List<FileSystemItem> Items
@@ -53,17 +54,45 @@ namespace DevToolVaultV2.Features.Structure
             set => SetProperty(ref _treeText, value);
         }
 
-        private bool _useAsciiTree = true;
-        public bool UseAsciiTree
+        public enum DisplayFormat
         {
-            get => _useAsciiTree;
+            ASCII,
+            Graphic,
+            Mermaid
+        }
+
+        private DisplayFormat _selectedFormat = DisplayFormat.ASCII;
+        public DisplayFormat SelectedFormat
+        {
+            get => _selectedFormat;
             set
             {
-                if (SetProperty(ref _useAsciiTree, value))
+                if (SetProperty(ref _selectedFormat, value))
                 {
                     RefreshTreeDisplay();
+                    OnPropertyChanged(nameof(UseAsciiTree));
+                    OnPropertyChanged(nameof(UseGraphicTree));
+                    OnPropertyChanged(nameof(UseMermaidTree));
                 }
             }
+        }
+
+        public bool UseAsciiTree
+        {
+            get => _selectedFormat == DisplayFormat.ASCII;
+            set { if (value) SelectedFormat = DisplayFormat.ASCII; }
+        }
+
+        public bool UseGraphicTree
+        {
+            get => _selectedFormat == DisplayFormat.Graphic;
+            set { if (value) SelectedFormat = DisplayFormat.Graphic; }
+        }
+
+        public bool UseMermaidTree
+        {
+            get => _selectedFormat == DisplayFormat.Mermaid;
+            set { if (value) SelectedFormat = DisplayFormat.Mermaid; }
         }
 
         public string CurrentProfileName => ActiveFilterProfile?.Name ?? "Padrão";
@@ -79,9 +108,10 @@ namespace DevToolVaultV2.Features.Structure
         public ICommand SaveStructureCommand { get; }
         public ICommand CloseCommand { get; }
 
-        public EstruturaViewModel(FileFilterManager filterManager)
+        public EstruturaViewModel(FileFilterManager filterManager, TreeToMermaidConverter mermaidConverter)
         {
             _filterManager = filterManager;
+            _mermaidConverter = mermaidConverter;
             _treeGenerator = new TreeGeneratorService(filterManager);
 
             // Inicializa o perfil ativo
@@ -133,7 +163,26 @@ namespace DevToolVaultV2.Features.Structure
         {
             if (Items == null) return;
             
-            TreeText = UseAsciiTree ? GenerateAsciiTreeText(Items) : GenerateIconTreeText(Items);
+            TreeText = SelectedFormat switch
+            {
+                DisplayFormat.ASCII => GenerateAsciiTreeText(Items),
+                DisplayFormat.Graphic => GenerateIconTreeText(Items),
+                DisplayFormat.Mermaid => GenerateMermaidTreeText(Items),
+                _ => GenerateAsciiTreeText(Items)
+            };
+        }
+
+        private string GenerateMermaidTreeText(List<FileSystemItem> items)
+        {
+            if (items == null || !items.Any()) return string.Empty;
+            
+            // Convert FileSystemItems to a textual tree format first
+            var treeText = GenerateIconTreeText(items);
+            
+            // Use TreeToMermaidConverter to convert to Mermaid format
+            var result = _mermaidConverter.ConvertTreeToMermaid(treeText);
+            
+            return result.IsSuccess ? result.MermaidDiagram : $"Error generating Mermaid: {result.ErrorMessage}";
         }
 
         private string GenerateIconTreeText(List<FileSystemItem> items)

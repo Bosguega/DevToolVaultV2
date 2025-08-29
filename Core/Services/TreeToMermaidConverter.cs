@@ -127,6 +127,96 @@ namespace DevToolVaultV2.Core.Services
             }
         }
 
+        public ConversionResult ConvertMermaidToTree(string mermaidDiagram)
+        {
+            if (string.IsNullOrWhiteSpace(mermaidDiagram))
+            {
+                return new ConversionResult
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "Mermaid diagram is empty",
+                    MermaidDiagram = string.Empty,
+                    ParsedNodes = new List<TreeNode>()
+                };
+            }
+
+            try
+            {
+                var nodes = ParseMermaidToNodes(mermaidDiagram);
+                if (!nodes.Any())
+                {
+                    return new ConversionResult
+                    {
+                        IsSuccess = false,
+                        ErrorMessage = "No valid nodes found in Mermaid diagram",
+                        MermaidDiagram = string.Empty,
+                        ParsedNodes = new List<TreeNode>()
+                    };
+                }
+
+                var treeText = ConvertNodesToTreeText(nodes);
+
+                return new ConversionResult
+                {
+                    IsSuccess = true,
+                    MermaidDiagram = treeText, // Using MermaidDiagram field for tree text output
+                    ParsedNodes = nodes,
+                    ErrorMessage = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ConversionResult
+                {
+                    IsSuccess = false,
+                    ErrorMessage = ex.Message,
+                    MermaidDiagram = $"Error converting from Mermaid: {ex.Message}",
+                    ParsedNodes = new List<TreeNode>()
+                };
+            }
+        }
+
+        private string ConvertNodesToTreeText(List<TreeNode> nodes)
+        {
+            if (!nodes.Any()) return string.Empty;
+
+            var result = new StringBuilder();
+            var sortedNodes = nodes.OrderBy(n => n.Level).ThenBy(n => n.FullPath).ToList();
+
+            foreach (var node in sortedNodes)
+            {
+                var indent = new string(' ', node.Level * 4);
+                var prefix = GetTreePrefix(node, sortedNodes);
+                var icon = node.IsDirectory ? "📁" : "📄";
+                
+                result.AppendLine($"{indent}{prefix}{icon} {node.Name}");
+            }
+
+            return result.ToString();
+        }
+
+        private string GetTreePrefix(TreeNode currentNode, List<TreeNode> allNodes)
+        {
+            if (currentNode.Level == 0) return "";
+
+            // Find siblings and check if this is the last one at this level
+            var siblingsAtSameLevel = allNodes
+                .Where(n => n.Level == currentNode.Level && 
+                           GetParentPath(n.FullPath) == GetParentPath(currentNode.FullPath))
+                .OrderBy(n => n.FullPath)
+                .ToList();
+
+            var isLastSibling = siblingsAtSameLevel.LastOrDefault()?.FullPath == currentNode.FullPath;
+
+            return isLastSibling ? "└── " : "├── ";
+        }
+
+        private string GetParentPath(string fullPath)
+        {
+            var segments = fullPath.Split('/');
+            return segments.Length > 1 ? string.Join("/", segments.Take(segments.Length - 1)) : string.Empty;
+        }
+
         public List<TreeNode> ParseMermaidToNodes(string mermaidDiagram)
         {
             var nodes = new List<TreeNode>();
@@ -244,15 +334,35 @@ namespace DevToolVaultV2.Core.Services
 
         private int GetIndentationLevel(string line)
         {
-            var match = Regex.Match(line, @"^(\s*[├└│\s\-]*)\s*");
-            return match.Success ? match.Groups[1].Value.Length / 4 : 0; // Assume 4 spaces per level
+            // Count leading whitespace and box drawing characters to determine indentation level
+            // This includes spaces, tabs, and Unicode box drawing characters (U+2500-U+257F)
+            var match = Regex.Match(line, @"^([\s\u2500-\u257F\-\|\+`'\*/\\]*)\s*");
+            if (match.Success)
+            {
+                var leadingChars = match.Groups[1].Value;
+                // Count primarily based on spaces, assuming 4 spaces or 1 tab per level
+                var spaceCount = leadingChars.Count(c => c == ' ');
+                var tabCount = leadingChars.Count(c => c == '\t');
+                return (spaceCount / 4) + tabCount;
+            }
+            return 0;
         }
 
         private string ExtractItemName(string line)
         {
-            // Remove tree symbols and extract the actual name
-            var cleaned = Regex.Replace(line, @"^[\s├└│\-]*", "");
-            cleaned = Regex.Replace(cleaned, @"^[📁📄]\s*", "");
+            // Step 1: Remove leading whitespace and common tree drawing characters
+            // Unicode Box Drawing Characters range: U+2500-U+257F (includes ├, └, │, ─, etc.)
+            var cleaned = Regex.Replace(line, @"^[\s\u2500-\u257F\-\|\+`'\*/\\]*", "");
+            
+            // Step 2: Remove file/folder emojis (📁📄 and similar document emojis)
+            cleaned = Regex.Replace(cleaned, @"^[📁📄📂📃📋📊📈📉📌📍📎📏📐📑📒📓📔📕📖📗📘📙📚📛📜📝]\s*", "");
+            
+            // Step 3: Remove any remaining leading symbols
+            cleaned = Regex.Replace(cleaned, @"^[\s\*\-\.\+\>\<\=]*", "");
+            
+            // Step 4: Remove trailing directory indicators
+            cleaned = cleaned.TrimEnd('/', '\\');
+            
             return cleaned.Trim();
         }
 
