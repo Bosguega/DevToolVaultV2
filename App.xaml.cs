@@ -40,7 +40,7 @@ namespace DevToolVaultV2
 
             // Janelas
             services.AddTransient<Features.Start.StartWindow>();
-            services.AddTransient<EstruturaWindow>();
+            services.AddTransient<Features.Structure.EstruturaWindow>();
             services.AddTransient<Features.Export.ExportarCodigoWindow>();
             services.AddTransient<Features.Filters.FilterManagerWindow>();
             services.AddTransient<Features.Filters.ProjectTypeSelectorWindow>();

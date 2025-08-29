@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using DevToolVaultV2.Core.Services;
@@ -32,10 +32,7 @@ namespace DevToolVaultV2.Features.Start
             _filterManager = filterManager;
             _navigationService = navigationService;
 
-            // Cards
-            LoadCards();
-
-            // Menu Commands
+            // 🔹 Primeiro inicializa os comandos
             SelecionarTipoProjetoCommand = new RelayCommand<object>(_ => SelecionarTipoProjeto());
             VisualizarEstruturaCommand = new RelayCommand<object>(_ => _navigationService.Show<EstruturaWindow>());
             ExportarCodigoCommand = new RelayCommand<object>(_ => _navigationService.Show<ExportarCodigoWindow>());
@@ -46,6 +43,9 @@ namespace DevToolVaultV2.Features.Start
             SobreCommand = new RelayCommand<object>(_ => MessageBox.Show(
                 "DevToolVaultV2 v1.0\n\nFerramentas de desenvolvimento em um só lugar.\n\nDesenvolvido por: Seu Nome",
                 "Sobre", MessageBoxButton.OK, MessageBoxImage.Information));
+
+            // 🔹 Só depois carrega os cards (com os comandos já prontos)
+            LoadCards();
 
             UpdateFiltroAtual();
         }
