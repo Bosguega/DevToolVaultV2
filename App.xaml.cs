@@ -27,6 +27,8 @@ namespace DevToolVaultV2
             services.AddSingleton<FileStatistics>();
             services.AddSingleton<IAppNavigationService, AppNavigationService>();
             services.AddSingleton<ITreeGeneratorService, TreeGeneratorService>();
+            services.AddSingleton<TreeToMermaidConverter>();
+            services.AddSingleton<FileSystemCreator>();
 
             // Estratégias de exportação
             services.AddTransient<ITextExportStrategy, TextExportStrategy>();
@@ -46,6 +48,7 @@ namespace DevToolVaultV2
             services.AddTransient<DevToolVaultV2.Features.Start.StartWindowViewModel>();
             services.AddTransient<DevToolVaultV2.Features.Structure.EstruturaViewModel>();
             services.AddTransient<DevToolVaultV2.Features.Export.ExportarCodigoViewModel>();
+            services.AddTransient<DevToolVaultV2.Features.TreetoFiles.TreetoFilesViewModel>();
 
             ServiceProvider = services.BuildServiceProvider();
 

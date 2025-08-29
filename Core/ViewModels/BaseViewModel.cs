@@ -1,4 +1,4 @@
-﻿// DevToolVaultV2/Core/ViewModels/BaseViewModel.cs
+// DevToolVaultV2/Core/ViewModels/BaseViewModel.cs
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 

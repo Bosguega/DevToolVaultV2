@@ -1,4 +1,4 @@
-﻿﻿using System.Collections.ObjectModel;
+﻿﻿﻿﻿﻿﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using DevToolVaultV2.Core.Services;
@@ -21,6 +21,7 @@ namespace DevToolVaultV2.Features.Start
         public ICommand SelecionarTipoProjetoCommand { get; }
         public ICommand VisualizarEstruturaCommand { get; }
         public ICommand ExportarCodigoCommand { get; }
+        public ICommand TreetoFilesCommand { get; }
         public ICommand GerenciarFiltrosCommand { get; }
         public ICommand RecarregarFiltrosCommand { get; }
         public ICommand SairCommand { get; }
@@ -38,6 +39,7 @@ namespace DevToolVaultV2.Features.Start
             SelecionarTipoProjetoCommand = new RelayCommand<object>(_ => SelecionarTipoProjeto());
             VisualizarEstruturaCommand = new RelayCommand<object>(_ => _navigationService.Show<EstruturaWindow>());
             ExportarCodigoCommand = new RelayCommand<object>(_ => _navigationService.Show<ExportarCodigoWindow>());
+            TreetoFilesCommand = new RelayCommand<object>(_ => _navigationService.Show<TreetoFiles.TreetoFilesWindow>());
             GerenciarFiltrosCommand = new RelayCommand<object>(_ => GerenciarFiltros());
             RecarregarFiltrosCommand = new RelayCommand<object>(_ => RecarregarFiltros());
             SairCommand = new RelayCommand<object>(_ => Application.Current.Shutdown());
@@ -65,6 +67,13 @@ namespace DevToolVaultV2.Features.Start
                     Title = "Exportar Código",
                     Description = "Exporte seu código-fonte para diversos formatos (TXT, MD, PDF, ZIP).",
                     OpenCommand = ExportarCodigoCommand
+                },
+                new CardItem
+                {
+                    Icon = "🌳",
+                    Title = "Tree to Files",
+                    Description = "Converta estruturas de árvore textual em arquivos e pastas reais.",
+                    OpenCommand = TreetoFilesCommand
                 }
             };
         }

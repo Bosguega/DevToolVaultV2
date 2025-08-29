@@ -1,8 +1,9 @@
-﻿﻿using System;
+﻿﻿﻿﻿﻿﻿using System;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using DevToolVaultV2.Features.Structure;
 using DevToolVaultV2.Features.Export;
+using DevToolVaultV2.Features.TreetoFiles;
 using DevToolVaultV2.Core.Services;
 
 namespace DevToolVaultV2.Core.Services
@@ -33,6 +34,17 @@ namespace DevToolVaultV2.Core.Services
             {
                 var vm = _serviceProvider.GetRequiredService<ExportarCodigoViewModel>();
                 var window = new ExportarCodigoWindow(vm)
+                {
+                    Owner = Application.Current.MainWindow
+                };
+                window.Show();
+                return;
+            }
+
+            if (typeof(T) == typeof(TreetoFilesWindow))
+            {
+                var vm = _serviceProvider.GetRequiredService<TreetoFilesViewModel>();
+                var window = new TreetoFilesWindow(vm)
                 {
                     Owner = Application.Current.MainWindow
                 };

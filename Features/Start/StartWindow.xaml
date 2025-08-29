@@ -48,6 +48,7 @@
                 <StackPanel Margin="8,0">
                     <Button Content="📊 Estrutura" Command="{Binding VisualizarEstruturaCommand}" Style="{StaticResource SidebarButtonStyle}" Margin="0,4"/>
                     <Button Content="📤 Exportar Código" Command="{Binding ExportarCodigoCommand}" Style="{StaticResource SidebarButtonStyle}" Margin="0,4"/>
+                    <Button Content="🌳 Tree to Files" Command="{Binding TreetoFilesCommand}" Style="{StaticResource SidebarButtonStyle}" Margin="0,4"/>
                     <Button Content="🔧 Gerenciar Filtros" Command="{Binding GerenciarFiltrosCommand}" Style="{StaticResource SidebarButtonStyle}" Margin="0,4"/>
                     <Button Content="🔄 Recarregar Filtros" Command="{Binding RecarregarFiltrosCommand}" Style="{StaticResource SidebarButtonStyle}" Margin="0,4"/>
                 </StackPanel>
