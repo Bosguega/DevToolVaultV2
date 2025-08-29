@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿// DevToolVaultV2/Features/Structure/EstruturaViewModel.cs
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿// DevToolVaultV2/Features/Structure/EstruturaViewModel.cs
 using DevToolVaultV2.Core.Commands;
 using DevToolVaultV2.Core.Models;
 using DevToolVaultV2.Core.Services;
@@ -176,13 +176,42 @@ namespace DevToolVaultV2.Features.Structure
         {
             if (items == null || !items.Any()) return string.Empty;
             
-            // Convert FileSystemItems to a textual tree format first
-            var treeText = GenerateIconTreeText(items);
+            // Convert FileSystemItems to a clean textual tree format (without icons)
+            var treeText = GenerateCleanTreeText(items);
             
             // Use TreeToMermaidConverter to convert to Mermaid format
             var result = _mermaidConverter.ConvertTreeToMermaid(treeText);
             
             return result.IsSuccess ? result.MermaidDiagram : $"Error generating Mermaid: {result.ErrorMessage}";
+        }
+
+        private string GenerateCleanTreeText(List<FileSystemItem> items)
+        {
+            var sb = new StringBuilder();
+            for (int i = 0; i < items.Count; i++)
+            {
+                bool isLast = i == items.Count - 1;
+                GenerateCleanTreeTextRecursive(items[i], sb, "", isLast);
+            }
+            return sb.ToString();
+        }
+
+        private void GenerateCleanTreeTextRecursive(FileSystemItem item, StringBuilder sb, string prefix, bool isLast)
+        {
+            // Current item - no icons, just ASCII tree structure
+            string connector = isLast ? "└── " : "├── ";
+            sb.AppendLine($"{prefix}{connector}{item.Name}");
+
+            // Children
+            if (item.Children != null && item.Children.Any())
+            {
+                string childPrefix = prefix + (isLast ? "    " : "│   ");
+                for (int i = 0; i < item.Children.Count; i++)
+                {
+                    bool isLastChild = i == item.Children.Count - 1;
+                    GenerateCleanTreeTextRecursive(item.Children[i], sb, childPrefix, isLastChild);
+                }
+            }
         }
 
         private string GenerateIconTreeText(List<FileSystemItem> items)

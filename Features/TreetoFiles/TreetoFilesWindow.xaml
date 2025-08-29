@@ -88,7 +88,8 @@
 
                     <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
                         <TextBlock Text="Cole ou digite a estrutura de árvore:" VerticalAlignment="Center" FontWeight="Normal"/>
-                        <Button Content="🧹 Limpar" Command="{Binding ClearCommand}" Margin="10,0,0,0" Background="#FF6B6B"/>
+                        <Button Content="🧹 Limpar" Command="{Binding ClearTreeCommand}" Margin="10,0,0,0" Background="#FF6B6B"/>
+                        <Button Content="➡️ Para Mermaid" Command="{Binding ConvertToMermaidCommand}" Margin="5,0,0,0" Background="#2196F3" ToolTip="Converter árvore para Mermaid"/>
                     </StackPanel>
 
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
@@ -112,8 +113,8 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                        <TextBlock Text="Visualização Mermaid gerada automaticamente:" VerticalAlignment="Center" FontWeight="Normal"/>
-                        <Button Content="🔄 Converter" Command="{Binding ConvertToMermaidCommand}" Margin="10,0,0,0" Background="#2196F3"/>
+                        <TextBlock Text="Diagrama Mermaid:" VerticalAlignment="Center" FontWeight="Normal"/>
+                        <Button Content="🧹 Limpar" Command="{Binding ClearMermaidCommand}" Margin="10,0,0,0" Background="#FF6B6B"/>
                         <Button Content="⬅️ Para Árvore" Command="{Binding ConvertToTreeCommand}" Margin="5,0,0,0" Background="#9C27B0" ToolTip="Converter Mermaid para árvore ASCII"/>
                     </StackPanel>
 

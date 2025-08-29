@@ -30,13 +30,7 @@ namespace DevToolVaultV2.Features.TreetoFiles
         public string InputTreeText
         {
             get => _inputTreeText;
-            set
-            {
-                if (SetProperty(ref _inputTreeText, value))
-                {
-                    ConvertToMermaid();
-                }
-            }
+            set => SetProperty(ref _inputTreeText, value);
         }
 
         public string MermaidOutput
@@ -67,6 +61,8 @@ namespace DevToolVaultV2.Features.TreetoFiles
         public ICommand SelectDirectoryCommand { get; }
         public ICommand ConvertToMermaidCommand { get; }
         public ICommand ConvertToTreeCommand { get; }
+        public ICommand ClearTreeCommand { get; }
+        public ICommand ClearMermaidCommand { get; }
         public ICommand CreateFilesCommand { get; }
         public ICommand ClearCommand { get; }
         public ICommand CloseCommand { get; }
@@ -82,6 +78,8 @@ namespace DevToolVaultV2.Features.TreetoFiles
             SelectDirectoryCommand = new RelayCommand<object>(_ => SelectDirectory());
             ConvertToMermaidCommand = new RelayCommand<object>(_ => ConvertToMermaid());
             ConvertToTreeCommand = new RelayCommand<object>(_ => ConvertMermaidToTree());
+            ClearTreeCommand = new RelayCommand<object>(_ => ClearTree());
+            ClearMermaidCommand = new RelayCommand<object>(_ => ClearMermaid());
             CreateFilesCommand = new RelayCommand<object>(_ => CreateFilesAndFolders(), _ => CanCreateFiles());
             ClearCommand = new RelayCommand<object>(_ => ClearAll());
             CloseCommand = new RelayCommand<object>(_ => CloseWindow());
@@ -127,12 +125,21 @@ namespace DevToolVaultV2.Features.TreetoFiles
             if (result.IsSuccess)
             {
                 InputTreeText = result.TreeText;
-                MessageBox.Show("Mermaid convertido para árvore ASCII com sucesso!", "Sucesso", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
             {
                 MessageBox.Show($"Erro ao converter Mermaid para árvore:\n{result.ErrorMessage}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void ClearTree()
+        {
+            InputTreeText = string.Empty;
+        }
+
+        private void ClearMermaid()
+        {
+            MermaidOutput = string.Empty;
         }
 
         private bool CanCreateFiles()

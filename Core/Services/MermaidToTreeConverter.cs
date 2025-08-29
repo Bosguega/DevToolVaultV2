@@ -215,7 +215,7 @@ namespace DevToolVaultV2.Core.Services
 
         private void GenerateAsciiTreeRecursive(TreeNode node, StringBuilder result, string prefix, bool isLast)
         {
-            // Current node
+            // Current node - clean ASCII without icons
             result.AppendLine($"{prefix}{(isLast ? "└── " : "├── ")}{node.Name}");
 
             // Children
