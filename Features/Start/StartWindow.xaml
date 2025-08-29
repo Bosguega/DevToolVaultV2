@@ -46,7 +46,7 @@
                 <TextBlock Text="DevToolVaultV2" FontSize="24" FontWeight="Bold" Foreground="#FFFFFF" Margin="24,0,24,40" TextAlignment="Center"/>
                 
                 <StackPanel Margin="8,0">
-                    <Button Content="📊 Estrutura" Command="{Binding VisualizarEstruturaCommand}" Style="{StaticResource SidebarButtonStyle}" Margin="0,4"/>
+                    <Button Content="📊 Estruturade Pastas" Command="{Binding VisualizarEstruturaCommand}" Style="{StaticResource SidebarButtonStyle}" Margin="0,4"/>
                     <Button Content="📤 Exportar Código" Command="{Binding ExportarCodigoCommand}" Style="{StaticResource SidebarButtonStyle}" Margin="0,4"/>
                     <Button Content="🌳 Tree to Files" Command="{Binding TreetoFilesCommand}" Style="{StaticResource SidebarButtonStyle}" Margin="0,4"/>
                     <Button Content="🔧 Gerenciar Filtros" Command="{Binding GerenciarFiltrosCommand}" Style="{StaticResource SidebarButtonStyle}" Margin="0,4"/>
@@ -170,11 +170,7 @@
                                     <TextBlock Text="{Binding Icon}" FontSize="52" HorizontalAlignment="Center" Margin="0,0,0,16" Opacity="0.9"/>
                                     <TextBlock Text="{Binding Title}" FontSize="20" FontWeight="SemiBold" Foreground="#FFFFFF" HorizontalAlignment="Center" Margin="0,0,0,8" TextAlignment="Center"/>
                                     <TextBlock Text="{Binding Description}" FontSize="14" Foreground="#B8BCC8" TextWrapping="Wrap" TextAlignment="Center" LineHeight="20" Margin="0,0,0,20"/>
-                                    
-                                    <!-- Visual indicator that card is clickable -->
-                                    <Border Background="#1A1A2E" CornerRadius="8" Padding="12,6" HorizontalAlignment="Center" Opacity="0.7">
-                                        <TextBlock Text="Clique para abrir" FontSize="12" Foreground="#B8BCC8" FontStyle="Italic"/>
-                                    </Border>
+
                                 </StackPanel>
                             </Button>
                         </DataTemplate>
